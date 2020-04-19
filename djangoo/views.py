@@ -6,7 +6,7 @@ def index(request):
     return render(request,'index.html',params)
     #return HttpResponse("hello")
 def about(request):
-    return HttpResponse("helloabout")
+    return render(request, 'about.html')
 def removepunc(request):
     djtext=request.GET.get('text','default')
     print(djtext)
@@ -18,59 +18,67 @@ def newlineremove(request):
 def charcount(request):
     return HttpResponse("charcount")
 def analyze(request):
-    djtext = request.GET.get('text', 'default')
+    djtext = request.POST.get('text', 'default')
 
     # Check checkbox values
-    removepunc = request.GET.get('removepunc', 'off')
-    fullcaps = request.GET.get('fullcaps', 'off')
-    newlineremover = request.GET.get('newlineremover', 'off')
-    extraspaceremover = request.GET.get('extraspaceremover', 'off')
-    charcount = request.GET.get('charcount','off')
+    removepunc = request.POST.get('removepunc', 'off')
+    fullcaps = request.POST.get('fullcaps', 'off')
+    newlineremover = request.POST.get('newlineremover', 'off')
+    extraspaceremover = request.POST.get('extraspaceremover', 'off')
+    charcount = request.POST.get('charcount','off')
     #Check which checkbox is on
+    purpose = ""
+    count = 0
     if removepunc == "on":
         punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
         analyzed = ""
         for char in djtext:
             if char not in punctuations:
                 analyzed = analyzed + char
-        params = {'purpose':'Removed Punctuations', 'analyzed_text': analyzed}
-        return render(request, 'analyze.html', params)
-    elif(fullcaps=="on"):
+        #params = {'purpose':'Removed Punctuations', 'analyzed_text': analyzed}
+        #return render(request, 'analyze.html', params)
+        djtext = analyzed
+        purpose = purpose + "Removepun "
+    if(fullcaps=="on"):
         analyzed = ""
         for char in djtext:
             analyzed = analyzed + char.upper()
 
-        params = {'purpose': 'Changed to Uppercase', 'analyzed_text': analyzed}
+        #params = {'purpose': 'Changed to Uppercase', 'analyzed_text': analyzed}
         # Analyze the text
-        return render(request, 'analyze.html', params)
-
-    elif(extraspaceremover=="on"):
+        #return render(request, 'analyze.html', params)
+        djtext = analyzed
+        purpose = purpose + "Fullcaps "
+    if(extraspaceremover=="on"):
         analyzed = ""
         for index, char in enumerate(djtext):
             if not(djtext[index] == " " and djtext[index+1]==" "):
                 analyzed = analyzed + char
 
-        params = {'purpose': 'Removed NewLines', 'analyzed_text': analyzed}
+        #params = {'purpose': 'Removed NewLines', 'analyzed_text': analyzed}
         # Analyze the text
-        return render(request, 'analyze.html', params)
-
-    elif (newlineremover == "on"):
+        #return render(request, 'analyze.html', params)
+        djtext = analyzed
+        purpose = purpose + "Extra_space_rem "
+    if (newlineremover == "on"):
         analyzed = ""
         for char in djtext:
-            if char != "\n":
+            if char != "\n" and char !="\r":
                 analyzed = analyzed + char
-
-        params = {'purpose': 'Removed NewLines', 'analyzed_text': analyzed}
-        # Analyze the text
-        return render(request, 'analyze.html', params)
-    elif (charcount == "on"):
-        count=0
+        djtext = analyzed
+        purpose = purpose + "Newlineremove"
+    if (charcount == "on"):
+        analyzed = ""
         for char in djtext:
             if char != " ":
-                count=count+1
-
-        params = {'purpose': 'Count Character', 'analyzed_text': count}
+                count = count+1
+        purpose = purpose + "charcount"  
+    if not(purpose == "" ):
+        if not(count == 0):
+            params = {'purpose': purpose, 'analyzed_text': djtext,'count':count}
         # Analyze the text
+        else:
+            params = {'purpose': purpose, 'analyzed_text': djtext}
         return render(request, 'analyze.html', params)
     else:
-        return HttpResponse("Error")
+        return HttpResponse("Select any operation")
