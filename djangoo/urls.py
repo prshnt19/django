@@ -25,4 +25,5 @@ urlpatterns = [
     path('capfirst',views.capfirst,name='capfirst'),
     path('newlineremove',views.newlineremove,name='newlineremove'),
     path('charcount',views.charcount,name='charcount'),
+    path('analyze', views.analyze, name='analyze')
 ]
